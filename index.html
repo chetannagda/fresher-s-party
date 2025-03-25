@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loophole Event</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Base Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        overflow-x: hidden;
+        background-color: #000;
+      }
+      
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      
+      /* Loading Screen */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s, visibility 0.5s;
+      }
+      
+      .loader {
+        width: 60px;
+        height: 60px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+      }
+      
+      .loading-text {
+        color: #fff;
+        font-size: 1.2rem;
+        letter-spacing: 3px;
+        animation: pulse 1.5s infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      
+      /* Hero Section */
+      .hero {
+        height: 100vh;
+        width: 100%;
+        background-color: black;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(40,0,60,0.4) 0%, rgba(0,0,0,1) 70%);
+        z-index: 1;
+      }
+      
+      .glitch-container {
+        position: relative;
+        max-width: 1000px;
+        text-align: center;
+        margin: 0 20px;
+        z-index: 2;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 1s ease, transform 1s ease;
+      }
+      
+      .glitch-text {
+        font-size: clamp(2rem, 5vw, 5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        position: relative;
+        animation: glitch 5s infinite;
+      }
+      
+      .glitch-text::before,
+      .glitch-text::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      
+      .glitch-text::before {
+        left: 2px;
+        text-shadow: -2px 0 #ff00c1;
+        clip: rect(44px, 450px, 56px, 0);
+        animation: glitch-anim 5s infinite linear alternate-reverse;
+      }
+      
+      .glitch-text::after {
+        left: -2px;
+        text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+        animation: glitch-anim2 1s infinite linear alternate-reverse;
+      }
+      
+      .easter-egg {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+        z-index: 10;
+        box-shadow: 0 0 15px rgba(255, 0, 193, 0.5);
+        animation: float 3s ease-in-out infinite;
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      .easter-egg:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1) rotate(10deg);
+        box-shadow: 0 0 20px rgba(255, 0, 193, 0.8);
+      }
+      
+      .scroll-indicator {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        z-index: 10;
+      }
+      
+      .scroll-indicator span {
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        background: linear-gradient(90deg, #ff00c1, #00fff9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: colorShift 3s infinite;
+      }
+      
+      @keyframes colorShift {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+      }
+      
+      .scroll-indicator i {
+        font-size: 1.5rem;
+      }
+      
+      .pulse {
+        animation: pulse-animation 2s infinite;
+      }
+      
+      @keyframes pulse-animation {
+        0% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: translateY(10px);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes glitch {
+        0% {
+          text-shadow: 0.05em 0 0 #ff00c1, -0.05em -0.025em 0 #00fff9, -0.025em 0.05em 0 #fffc00;
+        }
+        14% {
+          text-shadow: 0.05em 0 0 #ff00c1, -0.05em -0.025em 0 #00fff9, -0.025em 0.05em 0 #fffc00;
+        }
+        15% {
+          text-shadow: -0.05em -0.025em 0 #ff00c1, 0.025em 0.025em 0 #00fff9, -0.05em -0.05em 0 #fffc00;
+        }
+        49% {
+          text-shadow: -0.05em -0.025em 0 #ff00c1, 0.025em 0.025em 0 #00fff9, -0.05em -0.05em 0 #fffc00;
+        }
+        50% {
+          text-shadow: 0.025em 0.05em 0 #ff00c1, 0.05em 0 0 #00fff9, 0 -0.05em 0 #fffc00;
+        }
+        99% {
+          text-shadow: 0.025em 0.05em 0 #ff00c1, 0.05em 0 0 #00fff9, 0 -0.05em 0 #fffc00;
+        }
+        100% {
+          text-shadow: -0.025em 0 0 #ff00c1, -0.025em -0.025em 0 #00fff9, -0.025em -0.05em 0 #fffc00;
+        }
+      }
+      
+      @keyframes glitch-anim {
+        0% {
+          clip: rect(76px, 9999px, 31px, 0);
+        }
+        5% {
+          clip: rect(18px, 9999px, 93px, 0);
+        }
+        10% {
+          clip: rect(33px, 9999px, 9px, 0);
+        }
+        15% {
+          clip: rect(92px, 9999px, 82px, 0);
+        }
+        20% {
+          clip: rect(82px, 9999px, 3px, 0);
+        }
+        25% {
+          clip: rect(32px, 9999px, 33px, 0);
+        }
+        30% {
+          clip: rect(65px, 9999px, 47px, 0);
+        }
+        35% {
+          clip: rect(7px, 9999px, 7px, 0);
+        }
+        40% {
+          clip: rect(30px, 9999px, 97px, 0);
+        }
+        45% {
+          clip: rect(26px, 9999px, 31px, 0);
+        }
+        50% {
+          clip: rect(26px, 9999px, 67px, 0);
+        }
+        55% {
+          clip: rect(75px, 9999px, 95px, 0);
+        }
+        60% {
+          clip: rect(20px, 9999px, 86px, 0);
+        }
+        65% {
+          clip: rect(76px, 9999px, 46px, 0);
+        }
+        70% {
+          clip: rect(1px, 9999px, 69px, 0);
+        }
+        75% {
+          clip: rect(64px, 9999px, 31px, 0);
+        }
+        80% {
+          clip: rect(23px, 9999px, 40px, 0);
+        }
+        85% {
+          clip: rect(98px, 9999px, 17px, 0);
+        }
+        90% {
+          clip: rect(58px, 9999px, 89px, 0);
+        }
+        95% {
+          clip: rect(6px, 9999px, 56px, 0);
+        }
+        100% {
+          clip: rect(44px, 9999px, 84px, 0);
+        }
+      }
+      
+      @keyframes glitch-anim2 {
+        0% {
+          clip: rect(96px, 9999px, 7px, 0);
+        }
+        5% {
+          clip: rect(38px, 9999px, 82px, 0);
+        }
+        10% {
+          clip: rect(1px, 9999px, 83px, 0);
+        }
+        15% {
+          clip: rect(53px, 9999px, 45px, 0);
+        }
+        20% {
+          clip: rect(93px, 9999px, 43px, 0);
+        }
+        25% {
+          clip: rect(12px, 9999px, 16px, 0);
+        }
+        30% {
+          clip: rect(92px, 9999px, 4px, 0);
+        }
+        35% {
+          clip: rect(17px, 9999px, 47px, 0);
+        }
+        40% {
+          clip: rect(64px, 9999px, 81px, 0);
+        }
+        45% {
+          clip: rect(54px, 9999px, 16px, 0);
+        }
+        50% {
+          clip: rect(46px, 9999px, 73px, 0);
+        }
+        55% {
+          clip: rect(3px, 9999px, 35px, 0);
+        }
+        60% {
+          clip: rect(29px, 9999px, 70px, 0);
+        }
+        65% {
+          clip: rect(46px, 9999px, 16px, 0);
+        }
+        70% {
+          clip: rect(71px, 9999px, 89px, 0);
+        }
+        75% {
+          clip: rect(40px, 9999px, 25px, 0);
+        }
+        80% {
+          clip: rect(3px, 9999px, 52px, 0);
+        }
+        85% {
+          clip: rect(21px, 9999px, 39px, 0);
+        }
+        90% {
+          clip: rect(19px, 9999px, 79px, 0);
+        }
+        95% {
+          clip: rect(86px, 9999px, 85px, 0);
+        }
+        100% {
+          clip: rect(6px, 9999px, 68px, 0);
+        }
+      }
+      
+      /* Freshers Section */
+      .freshers-section {
+        min-height: 100vh;
+        width: 100%;
+        background: linear-gradient(to bottom, #111 0%, #222 100%);
+        padding: 100px 0;
+        position: relative;
+        color: #fff;
+      }
+      
+      .freshers-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="50" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="50" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="50" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="50" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="90" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+        opacity: 0.2;
+        z-index: 0;
+      }
+      
+      .freshers-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 30px;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 1s ease-out;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .freshers-content.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .section-header {
+        text-align: center;
+        margin-bottom: 80px;
+        position: relative;
+      }
+      
+      .section-header h2 {
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        font-weight: 700;
+        margin: 15px 0;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .section-header h2::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, #ff00c1, #00fff9);
+      }
+      
+      .section-header p {
+        font-size: 1.2rem;
+        color: #ccc;
+        max-width: 700px;
+        margin: 20px auto 0;
+      }
+      
+      .chip {
+        display: inline-block;
+        background-color: #ff00c1;
+        color: #fff;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        box-shadow: 0 5px 15px rgba(255, 0, 193, 0.3);
+        animation: pulse 2s infinite;
+      }
+      
+      .chip.dark {
+        background-color: #000;
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+      
+      .event-card {
+        perspective: 1000px;
+        margin-bottom: 50px;
+        height: 500px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .event-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        border-radius: 15px;
+      }
+      
+      .event-card.flipped .event-card-inner {
+        transform: rotateY(180deg);
+      }
+      
+      .event-card-front, .event-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      
+      .event-card-front {
+        background-color: #222;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      
+      .event-card-back {
+        background-color: #222;
+        transform: rotateY(180deg);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        padding: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto; /* Allow scrolling on small screens */
+      }
+      
+      .hover-hint {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        z-index: 5;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        animation: bounce 2s infinite;
+      }
+      
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      
+      .event-card-front:hover .hover-hint {
+        transform: translateY(-5px) scale(1.05);
+        background: rgba(255, 0, 193, 0.7);
+      }
+      
+      .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Changed from 'cover' to 'contain' to show full image */
+        object-position: center;
+        filter: brightness(0.8);
+        transition: all 0.5s ease;
+        background-color: #222; /* Added background color to handle empty space */
+      }
+      
+      .event-card-front:hover .event-image {
+        filter: brightness(0.6);
+        transform: scale(1.05);
+      }
+      
+      .event-details {
+        width: 100%;
+        max-height: 100%;
+      }
+      
+      .event-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 25px;
+      }
+      
+      .event-header h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-top: 10px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(255, 0, 193, 0.5);
+      }
+      
+      .event-time {
+        margin-top: 20px;
+      }
+      
+      .event-time span {
+        font-size: 0.9rem;
+        color: #999;
+      }
+      
+      .event-time p {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 5px;
+        color: #fff;
+      }
+      
+      .blink {
+        animation: blink 1s step-end infinite;
+      }
+      
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+      
+      .event-description {
+        color: #ccc;
+        margin-bottom: 30px;
+        line-height: 1.7;
+      }
+      
+      .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s ease;
+      }
+      
+      .glass-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      }
+      
+      .event-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .event-info h4 {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #00fff9;
+        text-shadow: 0 0 5px rgba(0, 255, 249, 0.5);
+      }
+      
+      .event-info p {
+        color: #ccc;
+      }
+      
+      .secret-message {
+        margin-top: 60px;
+        text-align: center;
+        opacity: 0.7;
+      }
+      
+      .decoded-text {
+        font-family: monospace;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        position: relative;
+        padding: 10px 20px;
+        display: inline-block;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .decoded-text:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        transform: translateY(-5px);
+        border-color: #ff00c1;
+        color: #ff00c1;
+        text-shadow: 0 0 5px rgba(255, 0, 193, 0.5);
+      }
+      
+      /* Sports Section */
+      .sports-section {
+        min-height: 100vh;
+        width: 100%;
+        background: linear-gradient(to bottom, #222 0%, #111 100%);
+        padding: 100px 0;
+        position: relative;
+        color: #fff;
+      }
+      
+      .sports-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><rect width="20" height="20" fill="none"/><circle cx="10" cy="10" r="1" fill="rgba(0,255,249,0.1)"/></svg>');
+        opacity: 0.3;
+        z-index: 0;
+      }
+      
+      .sports-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 30px;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 1s ease-out;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .sports-content.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .sports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+      }
+      
+      .sport-card {
+        background-color: #222;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+        opacity: 0;
+        transform: scale(0.95);
+        position: relative;
+      }
+      
+      .sport-card.visible {
+        opacity: 1;
+        transform: scale(1);
+      }
+      
+      .sport-card:hover {
+        transform: translateY(-10px) rotate(2deg);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      }
+      
+      .sport-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 200px;
+      }
+      
+      .sport-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform 0.5s ease;
+      }
+      
+      .sport-card:hover .sport-image {
+        transform: scale(1.1);
+      }
+      
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .sport-card:hover .overlay {
+        opacity: 1;
+      }
+      
+      .secret-icon {
+        font-size: 2rem;
+        color: white;
+        background: rgba(255, 0, 193, 0.7);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+        transform: scale(0);
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      
+      .sport-card:hover .secret-icon {
+        transform: scale(1);
+      }
+      
+      .sport-details {
+        padding: 20px;
+      }
+      
+      .sport-date {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      
+      .scrambled-date {
+        font-family: 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 24px;
+        color: #ccc;
+        transition: color 0.3s ease;
+      }
+      
+      .date-decoder {
+        margin-left: 10px;
+        width: 24px;
+        height: 24px;
+        background: #00fff9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      
+      .date-decoder:hover {
+        opacity: 1;
+        transform: scale(1.1) rotate(90deg);
+      }
+      
+      .date-decoder i {
+        color: #222;
+        font-size: 12px;
+      }
+      
+      .sport-details h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #fff;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .sport-details h3::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #ff00c1, #00fff9);
+        transition: width 0.3s ease;
+      }
+      
+      .sport-card:hover .sport-details h3::after {
+        width: 100%;
+      }
+      
+      .sport-details p {
+        color: #999;
+        font-size: 0.95rem;
+      }
+      
+      .schedule-note {
+        margin-top: 80px;
+        text-align: center;
+      }
+      
+      .schedule-note span {
+        display: block;
+        font-size: 1.125rem;
+        color: #ccc;
+        margin-bottom: 15px;
+      }
+      
+      .schedule-pill {
+        display: inline-block;
+        padding: 12px 30px;
+        border-radius: 50px;
+        animation: glow 2s infinite alternate;
+      }
+      
+      @keyframes glow {
+        0% { box-shadow: 0 0 5px rgba(0, 255, 249, 0.5); }
+        100% { box-shadow: 0 0 20px rgba(0, 255, 249, 0.8), 0 0 30px rgba(255, 0, 193, 0.5); }
+      }
+      
+      .schedule-pill p {
+        font-weight: 500;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .emoji {
+        font-size: 1.2rem;
+        animation: spin 3s linear infinite;
+      }
+      
+      /* Secret Modal */
+      .secret-modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .secret-modal-content {
+        background-color: #111;
+        margin: auto;
+        padding: 40px;
+        border: 1px solid #ff00c1;
+        max-width: 500px;
+        position: relative;
+        text-align: center;
+        color: #fff;
+        border-radius: 10px;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.5s ease;
+        box-shadow: 0 0 30px rgba(255, 0, 193, 0.5);
+      }
+      
+      .secret-modal.active .secret-modal-content {
+        transform: scale(1);
+        opacity: 1;
+      }
+      
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 28px;
+        cursor: pointer;
+        color: #999;
+        transition: color 0.3s ease, transform 0.3s ease;
+      }
+      
+      .close-modal:hover {
+        color: #ff00c1;
+        transform: rotate(90deg);
+      }
+      
+      .secret-modal h2 {
+        font-size: 2rem;
+        color: #00fff9;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
+      }
+      
+      .secret-modal p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+      
+      .secret-stamp {
+        display: inline-block;
+        margin-top: 30px;
+        color: red;
+        border: 2px solid red;
+        padding: 10px 20px;
+        font-weight: bold;
+        transform: rotate(-15deg);
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .secret-stamp::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        width: calc(100% + 20px);
+        height: calc(100% + 20px);
+        background: repeating-linear-gradient(
+          45deg,
+          rgba(255, 0, 0, 0.1),
+          rgba(255, 0, 0, 0.1) 10px,
+          transparent 10px,
+          transparent 20px
+        );
+        z-index: -1;
+        animation: stampBg 20s linear infinite;
+      }
+      
+      @keyframes stampBg {
+        0% { background-position: 0 0; }
+        100% { background-position: 100px 100px; }
+      }
+      
+      /* Footer */
+      footer {
+        background-color: black;
+        color: white;
+        padding: 50px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(255, 0, 193, 0.1) 0%, rgba(0, 255, 249, 0.1) 100%);
+        z-index: 0;
+      }
+      
+      .footer-content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 20px;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .footer-contact {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+      }
+      
+      .footer-contact:hover {
+        color: #fff;
+        transform: scale(1.05);
+      }
+      
+      .footer-contact b {
+        color: #00fff9;
+        font-weight: 600;
+        }
+      
+      /* Media Queries */
+      @media (min-width: 768px) {
+        .event-header {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+      
+        .event-time {
+          margin-top: 0;
+          text-align: right;
+        }
+      
+        .event-info {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      
+      /* Additional mobile-specific adjustments */
+      @media (max-width: 767px) {
+        .event-card-front {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #222;
+        }
+        
+        .event-image {
+          max-height: 100%;
+          max-width: 100%;
+        }
+      }
+  
+      @media (max-width: 767px) {
+        .event-card {
+          height: 450px;
+        }
+        
+        .section-header {
+          margin-bottom: 50px;
+        }
+        
+        .event-card-back {
+          padding: 20px;
+        }
+        
+        .event-details {
+          font-size: 0.9rem;
+        }
+        
+        .event-header h3 {
+          font-size: 1.5rem;
+        }
+        
+        .glass-card {
+          padding: 15px;
+        }
+        
+        .event-info h4 {
+          font-size: 0.9rem;
+        }
+        
+        .event-info p {
+          font-size: 0.85rem;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .event-card {
+          height: 400px;
+        }
+        
+        .glitch-text {
+          font-size: 1.8rem;
+        }
+        
+        .section-header h2 {
+          font-size: 2rem;
+        }
+        
+        .section-header p {
+          font-size: 1rem;
+        }
+        
+        .event-card-back {
+          padding: 15px;
+          overflow-y: auto;
+        }
+        
+        .event-details {
+          font-size: 0.85rem;
+        }
+        
+        .event-header h3 {
+          font-size: 1.3rem;
+        }
+        
+        .event-time p {
+          font-size: 1rem;
+        }
+        
+        .glass-card {
+          padding: 12px;
+        }
+        
+        .event-info {
+          gap: 12px;
+        }
+        
+        .event-info h4 {
+          font-size: 0.85rem;
+          margin-bottom: 4px;
+        }
+        
+        .event-info p {
+          font-size: 0.8rem;
+        }
+        
+        .secret-message {
+          margin-top: 40px;
+        }
+        
+        .decoded-text {
+          font-size: 0.9rem;
+          padding: 8px 15px;
+        }
+      }
+      
+      /* Animation classes for JavaScript */
+      .fade-in {
+        animation: fadeIn 1s ease-out forwards;
+      }
+      
+      .slide-up {
+        animation: slideUp 0.8s ease-out forwards;
+      }
+      
+      .scale-in {
+        animation: scaleIn 0.6s ease-out forwards;
+      }
+      
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideUp {
+        0% {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes scaleIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      
+      .decoded {
+        color: #00fff9 !important;
+        text-shadow: 0 0 5px #00fff9;
+      }
+      
+      .shake {
+        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      }
+      
+      @keyframes shake {
+        10%, 90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%, 80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%, 50%, 70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%, 60% {
+          transform: translate3d(4px, 0, 0);
+        }
+      }
+      
+      .glitch-hover {
+        position: relative;
+      }
+      
+      .glitch-hover::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 0, 193, 0.2);
+        z-index: 1;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .glitch-hover:hover::before {
+        opacity: 1;
+        animation: glitch-overlay 0.2s infinite;
+      }
+      
+      @keyframes glitch-overlay {
+        0% {
+          transform: translate(0);
+        }
+        25% {
+          transform: translate(-5px, 5px);
+        }
+        50% {
+          transform: translate(-5px, -5px);
+        }
+        75% {
+          transform: translate(5px, 5px);
+        }
+        100% {
+          transform: translate(0);
+        }
+      }
+      
+      .glitch-active {
+        animation: glitch-text-effect 0.2s steps(2, jump-none) infinite;
+      }
+      
+      @keyframes glitch-text-effect {
+        0% {
+          text-shadow: 1px 0 0 red, -1px 0 0 blue;
+          transform: translate(0);
+        }
+        25% {
+          text-shadow: -1px 0 0 red, 1px 0 0 blue;
+          transform: translate(1px, 1px);
+        }
+        50% {
+          text-shadow: 1px 0 0 red, -1px 0 0 blue;
+          transform: translate(-1px, -1px);
+        }
+        75% {
+          text-shadow: -1px 0 0 red, 1px 0 0 blue;
+          transform: translate(-1px, 1px);
+        }
+        100% {
+          text-shadow: 1px 0 0 red, -1px 0 0 blue;
+          transform: translate(0);
+        }
+      }
+      
+      /* Particle effects */
+      .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+      
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0;
+        animation: particle-animation 15s ease-in-out infinite;
+      }
+      
+      @keyframes particle-animation {
+        0% {
+          opacity: 0;
+          transform: translateY(0) rotate(0deg);
+        }
+        10% {
+          opacity: 0.8;
+        }
+        90% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-1000px) rotate(360deg);
+        }
+      }
+  </style>
+</head>
+<body>
+  <!-- Particle Effects -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen">
+    <div class="loader"></div>
+    <p class="loading-text">Breaking the rules...</p>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="glitch-container">
+      <h1 class="glitch-text" data-text="Sike! We've Got a Loophole in Attendance">Sike! We've Got a Loophole in Attendance</h1>
+    </div>
+    <div class="easter-egg">?</div>
+    <div class="scroll-indicator">
+      <span>Scroll to uncover the secret</span>
+      <i class="fas fa-arrow-down pulse"></i>
+    </div>
+  </section>
+
+  <!-- Freshers Section -->
+  <section class="freshers-section" id="freshers">
+    <div class="freshers-content">
+      <div class="section-header">
+        <span class="chip">TOP SECRET EVENT</span>
+        <h2>Freshers' Welcome</h2>
+        <p>An invitation you can't refuse - unless you want to miss the event of the year</p>
+      </div>
+
+      <div class="event-card">
+        <div class="event-card-inner">
+          <div class="event-card-front">
+            <img src="./asessts/freshers.jpg" alt="Freshers Party" class="event-image">
+            <div class="hover-hint">
+              <i class="fas fa-sync-alt"></i>
+              <span>Click to flip</span>
+            </div>
+          </div>
+          <div class="event-card-back">
+            <div class="event-details">
+              <div class="event-header">
+                <div>
+                  <span class="chip dark">29 MARCH</span>
+                  <h3>Freshers' Night 2025</h3>
+                </div>
+                <div class="event-time">
+                  <span>Starting at</span>
+                  <p>7:00 PM <span class="blink">|</span></p>
+                </div>
+              </div>
+              
+              <p class="event-description">
+                Experience an evening filled with music, performances, gourmet food, and the chance 
+                to connect with your peers and seniors. This is your official welcome to our community!
+              </p>
+              
+              <div class="glass-card">
+                <div class="event-info">
+                  <div>
+                    <h4>Location</h4>
+                    <p>Techno India NJR, College Ground</p>
+                  </div>
+                  <div>
+                    <h4>Dress Code</h4>
+                    <p>Just Don't Wear College Dress</p>
+                  </div>
+                  <div>
+                    <h4>RSVP</h4>
+                    <p>Required by March 26th</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="secret-message">
+        <span class="decoded-text">PS: Don't tell the professors!</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sports Week Section -->
+  <section class="sports-section" id="sports">
+    <div class="sports-content">
+      <div class="section-header">
+        <span class="chip">CLASSIFIED INFO</span>
+        <h2>Sports Week</h2>
+        <p>Get ready for a week of competition, teamwork, and athletic excellence</p>
+      </div>
+
+      <div class="sports-grid">
+        <!-- Football -->
+        <div class="sport-card">
+          <div class="sport-image-container">
+            <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Football" class="sport-image">
+            <div class="overlay">
+              <span class="secret-icon"><i class="fas fa-question"></i></span>
+            </div>
+          </div>
+          <div class="sport-details">
+            <div class="sport-date">
+              <span class="scrambled-date" data-original="?? April">April ??</span>
+              <div class="date-decoder"><i class="fas fa-key"></i></div>
+            </div>
+            <h3>Football Tournament</h3>
+            <p>Inter-departmental football championship with exciting prizes for the winning teams</p>
+          </div>
+        </div>
+
+        <!-- Cricket -->
+        <div class="sport-card">
+          <div class="sport-image-container">
+            <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cricket" class="sport-image">
+            <div class="overlay">
+              <span class="secret-icon"><i class="fas fa-question"></i></span>
+            </div>
+          </div>
+          <div class="sport-details">
+            <div class="sport-date">
+              <span class="scrambled-date" data-original="?? April">April ??</span>
+              <div class="date-decoder"><i class="fas fa-key"></i></div>
+            </div>
+            <h3>Cricket Tournament</h3>
+            <p>Twenty20 format cricket matches with teams representing different batches</p>
+          </div>
+        </div>
+
+        <!-- Kabaddi -->
+        <div class="sport-card">
+          <div class="sport-image-container">
+            <img src="./asessts/kabaddi.jpeg" alt="Kabaddi" class="sport-image">
+            <div class="overlay">
+              <span class="secret-icon"><i class="fas fa-question"></i></span>
+            </div>
+          </div>
+          <div class="sport-details">
+            <div class="sport-date">
+              <span class="scrambled-date" data-original="?? April">April ??</span>
+              <div class="date-decoder"><i class="fas fa-key"></i></div>
+            </div>
+            <h3>Kabaddi Championship</h3>
+            <p>Traditional kabaddi matches showcasing strength, strategy, and teamwork</p>
+          </div>
+        </div>
+
+        <!-- Volleyball -->
+        <div class="sport-card">
+          <div class="sport-image-container">
+            <img src="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Volleyball" class="sport-image">
+            <div class="overlay">
+              <span class="secret-icon"><i class="fas fa-question"></i></span>
+            </div>
+          </div>
+          <div class="sport-details">
+            <div class="sport-date">
+              <span class="scrambled-date" data-original="?? April"> April ??</span>
+              <div class="date-decoder"><i class="fas fa-key"></i></div>
+            </div>
+            <h3>Volleyball Tournament</h3>
+            <p>Competitive volleyball matches for both men's and women's teams</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="schedule-note">
+        <span>Stay tuned for confirmed dates</span>
+        <div class="glass-card schedule-pill">
+          <p>Schedule to be announced soon <span class="emoji">🤫</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Secret Modal -->
+  <div class="secret-modal">
+    <div class="secret-modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>You Found The Secret!</h2>
+      <p>This is just between us, but all attendance rules have been suspended for these events.</p>
+      <p>Don't tell anyone - especially not the professors!</p>
+      <div class="secret-stamp">TOP SECRET</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <p>© 2025 Techno NJR Events</p>
+      <p class="footer-contact">For inquiries : <b>Contact : Chetan Nagda and Manish Vyas Savina : 3rd Year</b></p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Create particles
+      const particlesContainer = document.getElementById('particles');
+      const colors = ['#ff00c1', '#00fff9', '#fffc00'];
+      
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random properties
+        const size = Math.random() * 5 + 2;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 15;
+        const duration = Math.random() * 10 + 10;
+        
+        // Apply styles
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = color;
+        particle.style.left = `${left}%`;
+        particle.style.bottom = '-20px';
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${duration}s`;
+        
+        particlesContainer.appendChild(particle);
+      }
+      
+      // Loading Screen
+      setTimeout(function() {
+        const loader = document.querySelector('.loading-screen');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+            
+            // Animate hero text after loader disappears
+            const glitchContainer = document.querySelector('.glitch-container');
+            if (glitchContainer) {
+              glitchContainer.style.opacity = '1';
+              glitchContainer.style.transform = 'translateY(0)';
+            }
+          }, 500);
+        }
+      }, 2000);
+    
+      // Create intersection observer
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -100px 0px"
+      };
+    
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, observerOptions);
+    
+      // Observe sections
+      const freshersContent = document.querySelector('.freshers-content');
+      const sportsContent = document.querySelector('.sports-content');
+      if (freshersContent) observer.observe(freshersContent);
+      if (sportsContent) observer.observe(sportsContent);
+    
+      // Observe sport cards
+      const sportCards = document.querySelectorAll('.sport-card');
+      sportCards.forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1 + 0.1}s`;
+        observer.observe(card);
+      });
+    
+      // Smooth scroll for links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    
+      // Parallax effect on scroll
+      window.addEventListener('scroll', function() {
+        const scrollPosition = window.scrollY;
+        const images = document.querySelectorAll('.event-image, .sport-image');
+        images.forEach(image => {
+          if (image) {
+            const imagePosition = image.getBoundingClientRect().top;
+            if (imagePosition < window.innerHeight && imagePosition > -image.height) {
+              image.style.transform = `scale(1.05) translateY(${scrollPosition * 0.02}px)`;
+            }
+          }
+        });
+        
+        const heroText = document.querySelector('.glitch-text');
+        if (heroText) {
+          heroText.style.transform = `translateY(${scrollPosition * 0.1}px)`;
+        }
+      });
+    
+      // Flip card on click
+      const eventCardElement = document.querySelector('.event-card');
+      const eventCard = document.querySelector('.event-card-inner');
+      if (eventCard && eventCardElement) {
+        eventCard.addEventListener('click', function() {
+          eventCardElement.classList.toggle('flipped');
+        });
+      }
+    
+      // Secret date decoder
+      const dateDecoders = document.querySelectorAll('.date-decoder');
+      dateDecoders.forEach(decoder => {
+        decoder.addEventListener('click', function() {
+          const dateElement = this.previousElementSibling;
+          if (dateElement) {
+            if (dateElement.classList.contains('decoded')) {
+              dateElement.textContent = dateElement.getAttribute('data-original');
+              dateElement.classList.remove('decoded');
+            } else {
+              const day = Math.floor(Math.random() * 28) + 1;
+              dateElement.textContent = `${day} April`;
+              dateElement.classList.add('decoded');
+              this.classList.add('shake');
+              setTimeout(() => {
+                this.classList.remove('shake');
+              }, 500);
+            }
+          }
+        });
+      });
+    
+      // Easter egg functionality
+      const easterEgg = document.querySelector('.easter-egg');
+      const secretModal = document.querySelector('.secret-modal');
+      const closeModal = document.querySelector('.close-modal');
+    
+      if (easterEgg && secretModal && closeModal) {
+        easterEgg.addEventListener('click', function() {
+          secretModal.style.display = 'flex';
+          setTimeout(() => {
+            secretModal.classList.add('active');
+          }, 10);
+        });
+        
+        closeModal.addEventListener('click', function() {
+          secretModal.classList.remove('active');
+          setTimeout(() => {
+            secretModal.style.display = 'none';
+          }, 500);
+        });
+        
+        secretModal.addEventListener('click', function(e) {
+          if (e.target === secretModal) {
+            secretModal.classList.remove('active');
+            setTimeout(() => {
+              secretModal.style.display = 'none';
+            }, 500);
+          }
+        });
+      }
+    
+      // Scrambled text effect for secret message
+      const secretMessage = document.querySelector('.decoded-text');
+if (secretMessage) {
+  let locked = false; // tracks if the scrambled state is locked after click
+
+  secretMessage.addEventListener('mouseover', function() {
+    // Store the original text to restore later if needed.
+    const originalText = this.textContent;
+    // Only scramble if not already locked.
+    if (locked) return;
+    const scramble = () => {
+      this.textContent = originalText
+        .split("")
+        .map(() => String.fromCharCode(Math.floor(Math.random() * 26) + 97))
+        .join("");
+    };
+    // Start scrambling every 30ms.
+    const interval = setInterval(scramble, 30);
+
+    // On mouseout, if not locked, stop scrambling and restore the original text.
+    const handleMouseOut = () => {
+      if (!locked) {
+        clearInterval(interval);
+        this.textContent = originalText;
+      }
+      this.removeEventListener('mouseout', handleMouseOut);
+    };
+    this.addEventListener('mouseout', handleMouseOut);
+
+    // On click, clear the interval and lock the scrambled text.
+    const handleClick = () => {
+      clearInterval(interval);
+      locked = true;
+      this.removeEventListener('click', handleClick);
+    };
+    this.addEventListener('click', handleClick);
+  });
+}
+    
+      // Glitch effect on hover
+      sportCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.classList.add('glitch-hover');
+        });
+        card.addEventListener('mouseleave', function() {
+          this.classList.remove('glitch-hover');
+        });
+      });
+    
+      // Random glitch effect
+      setInterval(() => {
+        const element = document.querySelector('.glitch-text');
+        if (element) {
+          element.classList.add('glitch-active');
+          setTimeout(() => {
+            element.classList.remove('glitch-active');
+          }, 200);
+        }
+      }, 5000);
+      
+      // Add hover effects to all cards and buttons
+      document.querySelectorAll('.glass-card, .chip, .sport-card').forEach(element => {
+        element.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px) scale(1.02)';
+          this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.4)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+          this.style.transform = '';
+          this.style.boxShadow = '';
+        });
+      });
+      
+      // Add 3D tilt effect to cards
+      const cards = document.querySelectorAll('.event-card-front, .sport-card');
+      
+      cards.forEach(card => {
+        card.addEventListener('mousemove', function(e) {
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const xRotation = 20 * ((y - rect.height / 2) / rect.height);
+          const yRotation = -20 * ((x - rect.width / 2) / rect.width);
+          
+          this.style.transform = `perspective(1000px) rotateX(${xRotation}deg) rotateY(${yRotation}deg) scale(1.05)`;
+        });
+        
+        card.addEventListener('mouseout', function() {
+          this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        });
+      });
+      
+      // Add typing effect to modal text
+      const modalOpenHandler = function() {
+        const modalText = document.querySelector('.secret-modal p:first-of-type');
+        if (modalText) {
+          const originalText = modalText.textContent;
+          modalText.textContent = '';
+          let i = 0;
+          
+          const typing = setInterval(() => {
+            if (i < originalText.length) {
+              modalText.textContent += originalText.charAt(i);
+              i++;
+            } else {
+              clearInterval(typing);
+            }
+          }, 30);
+        }
+      };
+      
+      if (easterEgg) {
+        easterEgg.addEventListener('click', modalOpenHandler);
+      }
+    });
+  </script>
+</body>
+</html>
